@@ -1,0 +1,2 @@
+file size: 0-13000 kb
+file name after: time+num yyyymmddhhmmssnum1num2
