@@ -1,74 +1,56 @@
-<?xml version="1.1" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="team.tsinghua.ipsc.free_gesture.MainActivity"
-    android:id="@+id/main_activity_layout">
+    tools:context=".MainActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
+
+    <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:minHeight="?actionBarSize"
-            android:padding="@dimen/appbar_padding"
-            android:text="@string/in_app_title"
-            android:textColor="#000000"
-            android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title" />
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-
-            app:tabSelectedTextColor="#F57F17"
-            app:tabTextColor="#FBC02D" />
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/view_pager"
+        android:id="@+id/user"
+        android:text="请输入id和组号，用下划线分开"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center" />
+    <Button
+        android:id="@+id/login"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#000"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"></androidx.viewpager.widget.ViewPager>
-
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/fab"
-        android:theme="@style/MyMaterialTheme"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="60sp"
-        android:text="开始"
-        android:src="@drawable/button"
-
-        app:backgroundTint="@color/colorAccent"
-        app:icon="@drawable/ic_play_arrow_black_24dp"
-        app:layout_anchor="@+id/view_pager"
-        app:layout_anchorGravity="bottom|center" />
-
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/save_file_button"
-        android:theme="@style/MyMaterialTheme"
-        android:layout_width="wrap_content"
+        android:text="登录"
+        app:layout_constraintTop_toBottomOf="@id/user"
+        tools:layout_editor_absoluteX="0dp" />
+    <Button
+        android:id="@+id/check"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="60sp"
-        android:text="文件已拷贝"
-        android:src="@drawable/button"
-        android:visibility="invisible"
-        android:enabled="false"
+        android:text="检查PPG2"
+        app:layout_constraintTop_toBottomOf="@id/decode_save"
+        tools:layout_editor_absoluteX="0dp" />
+    <Button
+        android:id="@+id/check3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="检查PPG3"
+        app:layout_constraintTop_toBottomOf="@id/check"
+        tools:layout_editor_absoluteX="0dp" />
 
-        app:backgroundTint="@color/colorAccent"
-        app:icon="@drawable/ic_done_all_black_24dp"
-        app:layout_anchor="@+id/view_pager"
-        app:layout_anchorGravity="bottom|center" />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/decode_save"
+        android:text="保存文件"
+        app:layout_constraintTop_toBottomOf="@id/login"/>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <Button
+        android:id="@+id/upload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="上传文件"
+        app:layout_constraintTop_toBottomOf="@id/check3"/>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

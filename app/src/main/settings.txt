@@ -1,2 +1,4 @@
 file size: 0-13000 kb
 file name after: time+num yyyymmddhhmmssnum1num2
+origin path: /storage/emulated/0/btdata2/upload/id
+save path: /storage/emulated/0/watch_data

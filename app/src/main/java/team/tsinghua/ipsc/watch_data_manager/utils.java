@@ -14,7 +14,7 @@ import java.io.OutputStream;
 public class utils {
 
 
-    public static void copy_file(File src, File dst) throws IOException {
+    public static void copyFile(File src, File dst) throws IOException {
         try (InputStream in = new FileInputStream(src)) {
             try (OutputStream out = new FileOutputStream(dst)) {
                 // Transfer bytes from in to out
@@ -28,7 +28,21 @@ public class utils {
     }
 
 
-    public static void copy_directory(File sourceLocation , File targetLocation) throws IOException {
+    public static byte[] longToBytes(long n) {
+        byte[] b = new byte[8];
+        b[7] = (byte) (n & 0xff);
+        b[6] = (byte) (n >> 8 & 0xff);
+        b[5] = (byte) (n >> 16 & 0xff);
+        b[4] = (byte) (n >> 24 & 0xff);
+        b[3] = (byte) (n >> 32 & 0xff);
+        b[2] = (byte) (n >> 40 & 0xff);
+        b[1] = (byte) (n >> 48 & 0xff);
+        b[0] = (byte) (n >> 56 & 0xff);
+        return b;
+    }
+
+
+    public static void copyDirectory(File sourceLocation , File targetLocation) throws IOException {
         if (sourceLocation.isDirectory()) {
             if (!targetLocation.exists() && !targetLocation.mkdirs()) {
                 throw new IOException("Cannot create dir " + targetLocation.getAbsolutePath());
@@ -36,7 +50,7 @@ public class utils {
             String[] children = sourceLocation.list();
 
             for (String child : children) {
-                copy_directory(new File(sourceLocation, child), new File(targetLocation, child));
+                copyDirectory(new File(sourceLocation, child), new File(targetLocation, child));
             }
         } else {
             // make sure the directory we plan to store the recording in exists
@@ -82,29 +96,10 @@ public class utils {
     }
 
 
-    public static String[] read_settings(String settingFileName){
-        String line;
-        String[] args = new String[20];
-        int i;
-        try{
-            BufferedReader in=new BufferedReader(new FileReader(settingFileName));
-            line=in.readLine();
-            for (i=0;i<args.length;i++){
-                if (line != null){
-                    args[i] = line;
-                    line = in.readLine();
-                }
-            }
-            in.close();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        return args;
-    }
 
 
-    public static String decode_data(){
+
+    public static String decodeData(){
         String fileName = "";
 
         return fileName;
