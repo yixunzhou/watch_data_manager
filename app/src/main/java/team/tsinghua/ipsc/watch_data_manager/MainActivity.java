@@ -36,6 +36,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import ch.ethz.ssh2.Connection;
+import ch.ethz.ssh2.SCPClient;
+import ch.ethz.ssh2.Session;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -51,14 +55,20 @@ public class MainActivity extends AppCompatActivity {
     private String tar_dir;
     private String src_file_tar_dir;
     private String tar_file_tar_dir;
+    private String src_file_tar_dir_user;
+    private String tar_file_tar_dir_user;
     private String mode;
-    private Button btnCheck, btnCheck3, btnLogin;
+    private String remote_path;
+    private Button btnCheck, btnCheck3, btnLogin, btnSend;
     private String device_sc;
     private String lower_rate, upper_rate;
     private String[] user = new String[6];
     private String user_id, group;
     private String[] fnames = new String[8];
     private EditText user_input;
+    private final String remoteUserName = "ipsc";
+    private final String remotePassword = "ipsc";
+
 
     @SuppressLint(value = "ClickableViewAccessibility")
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,32 +81,28 @@ public class MainActivity extends AppCompatActivity {
 
         String settingFilePath = "/storage/emulated/0/watch_data/settings.txt";
         String[] settings = readSettings(settingFilePath);
-        serverAddr = settings[0];
-        PORT = Integer.parseInt(settings[1]);
-        src_dir = settings[2];
-        tar_dir = settings[3];
-        lower_rate = settings[4];
-        upper_rate = settings[5];
+        serverAddr = settings[0].split(":")[1];
+        PORT = Integer.parseInt(settings[1].split(":")[1]);
+        device_sc = settings[2].split(":")[1];
+        remote_path = settings[3].split(":")[1];
+        src_dir = settings[4].split(":")[1];
+        tar_dir = settings[5].split(":")[1];
+        lower_rate = settings[6].split(":")[1];
+        upper_rate = settings[7].split(":")[1];
         src_file_tar_dir = tar_dir + "origin/";
         tar_file_tar_dir = tar_dir + "decoded/";
-        device_sc = new File("/storage/emulated/0/dev_info/").list()[0];
 
         if (!Python.isStarted()) {
             Python.start(new AndroidPlatform(this));
         }
-
-
         user_input = findViewById(R.id.user);
         btnLogin = findViewById(R.id.login);
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 user_id = user_input.getText().toString().split("_")[0];
-                group = user_input.getText().toString().split("_")[0];
+                group = user_input.getText().toString().split("_")[1];
                 btnLogin.setText("用户" + user_input.getText().toString() + "已登录");
-//                Toast toast = Toast.makeText(MainActivity.this, "用户" + user_input.getText().toString() + "已登录", Toast.LENGTH_SHORT);
-//                toast.setGravity(Gravity.BOTTOM, 0, 0);
-//                toast.show();
             }
         });
 
@@ -131,42 +137,34 @@ public class MainActivity extends AppCompatActivity {
                             fnames[5] = user[0] + "_" + user[1] + "_" + user[2] + "_" + user[3] + "_" + user[4] + "_accy" + "_" + user[5] + ".txt";
                             fnames[6] = user[0] + "_" + user[1] + "_" + user[2] + "_" + user[3] + "_" + user[4] + "_accz" + "_" + user[5] + ".txt";
                             fnames[7] = user[0] + "_" + user[1] + "_" + user[2] + "_" + user[3] + "_" + user[4] + "_" + user[5] + ".txt";
-                            PPGParser.decode(src_file_arr, tar_file_tar_dir, user, fnames);
+
+                            src_file_tar_dir_user = src_file_tar_dir + user[0] + "_" + user[1] + "_" + user[2] + "/";
+                            tar_file_tar_dir_user = tar_file_tar_dir + user[0] + "_" + user[1] + "_" + user[2] + "/";
+                            File f_src_file_tar_dir_user = new File(src_file_tar_dir_user);
+                            File f_tar_file_tar_dir_user = new File(tar_file_tar_dir_user);
+                            if (!f_src_file_tar_dir_user.exists()) f_src_file_tar_dir_user.mkdir();
+                            if (!f_tar_file_tar_dir_user.exists()) f_tar_file_tar_dir_user.mkdir();
+
+                            PPGParser.decode(src_file_arr, tar_file_tar_dir_user, user, fnames);
                             try {
-                                copyFile(new File(src_file), new File(src_file_tar_dir + fnames[7]));
+                                copyFile(new File(src_file), new File(src_file_tar_dir_user + fnames[7]));
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-
                             Toast toast = Toast.makeText(MainActivity.this, "保存完成", Toast.LENGTH_SHORT);
                             toast.setGravity(Gravity.BOTTOM, 0, 0);
                             toast.show();
-                            try {
-                                if (new File(src_dir).list() != null){
-                                    for (String dirs: new File(src_dir).list()){
-                                        FileUtils.deleteDirectory(new File(src_dir+dirs));
-                                    }
-                                }
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                            btnDecode.setText("文件已保存");
+
                         }
                     }
                 }
-
-//                for (String decodedFiles:new File(tar_file_tar_dir).list()){
-//                    try{
-//                        copyFile(new File(tar_file_tar_dir + decodedFiles), new File(temp_tar_dir + decodedFiles));
-//                    }catch (IOException e){
-//                        e.printStackTrace();
-//                    }
-//                }
             }
         });
 
 
 
-        final Button btnSend = findViewById(R.id.upload);
+        btnSend = findViewById(R.id.upload);
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -176,37 +174,75 @@ public class MainActivity extends AppCompatActivity {
 
                         File f_src_file_tar_dir = new File(src_file_tar_dir);
                         File f_tar_file_tar_dir = new File(tar_file_tar_dir);
+                        File f_src_file_tar_dir_user = new File(src_file_tar_dir_user);
+                        File f_tar_file_tar_dir_user = new File(tar_file_tar_dir_user);
                         if (!f_src_file_tar_dir.exists()) f_src_file_tar_dir.mkdir();
                         if (!f_tar_file_tar_dir.exists()) f_tar_file_tar_dir.mkdir();
+                        if (!f_src_file_tar_dir_user.exists()) f_src_file_tar_dir_user.mkdir();
+                        if (!f_tar_file_tar_dir_user.exists()) f_tar_file_tar_dir_user.mkdir();
 
-                        btnSend.setText("开始上传");
-                        if(new File(src_file_tar_dir).list() != null && new File(tar_file_tar_dir).list() != null) {
-                            for (String fname : new File(src_file_tar_dir).list()) {
-                                if (fname.split("_")[1].equals(user_id) && fname.split("_")[2].equals(group)) {
-                                    mode = "origin/";
-                                    sendToRemote(fname, mode);
+                        Connection connection = new Connection(serverAddr, PORT);
+                        Session ssh = null;
+                        try{
+                            connection.connect();
+                            boolean isConnected = connection.authenticateWithPassword(remoteUserName,remotePassword);
+                            if (isConnected){
+                                btnSend.setText("远程服务器已连接");
+                            }
+                            SCPClient scpClient = connection.createSCPClient();
+                            if (new File(src_file_tar_dir_user).list() != null){
+                                btnSend.setText("文件上传中");
+                                for (String fname:new File(src_file_tar_dir_user).list()){
+                                    if (fname.split("_")[1].equals(user_id) && fname.split("_")[2].equals(group)){
+                                        try {
+                                            scpClient.put(src_file_tar_dir_user + fname, remote_path + "origin/" + fname.split("_")[0] + "_" + user_id + "_" + group + "/");
+                                        }catch (IOException e){
+                                            ssh = connection.openSession();
+                                            ssh.execCommand("mkdir " + remote_path + "origin/" + fname.split("_")[0] + "_" + user_id + "_" + group + "/");
+                                            scpClient.put(src_file_tar_dir_user + fname, remote_path + "origin/" + fname.split("_")[0] + "_" + user_id + "_" + group + "/");
+                                        }finally {
+                                            if (ssh!=null){
+                                                ssh.close();
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                            btnSend.setText("上传中");
-                            for (String fname : new File(tar_file_tar_dir).list()) {
-                                if (fname.split("_")[1].equals(user_id) && fname.split("_")[2].equals(group)){
-                                    mode = "decoded/";
-                                    sendToRemote(fname, mode);
+                            if (new File(tar_file_tar_dir_user).list() != null){
+                                for (String fname:new File(tar_file_tar_dir_user).list()){
+                                    if (fname.split("_")[1].equals(user_id) && fname.split("_")[2].equals(group)){
+                                        try {
+                                            scpClient.put(tar_file_tar_dir_user + fname, remote_path + "decoded/" + fname.split("_")[0] + "_" + user_id + "_" + group + "/");
+                                        }catch (IOException e){
+                                            ssh = connection.openSession();
+                                            ssh.execCommand("mkdir " + remote_path + "decoded/" + fname.split("_")[0] + "_" + user_id + "_" + group + "/");
+                                            scpClient.put(tar_file_tar_dir_user + fname, remote_path + "decoded/" + fname.split("_")[0] + "_" + user_id + "_" + group + "/");
+                                        }finally {
+                                            if (ssh!=null){
+                                                ssh.close();
+                                            }
+                                        }
+                                    }
                                 }
-
                             }
-                        } else{
-                            btnSend.setText("文件夹为空，请检查");
+                            btnSend.setText("文件已上传");
+                        }catch (IOException e){
+                            e.printStackTrace();
+                        }finally {
+                            if (connection!=null){
+                                connection.close();
+                                try {
+                                    if (new File(src_dir).list() != null){
+                                        for (String dirs: new File(src_dir).list()){
+                                            FileUtils.deleteDirectory(new File(src_dir+dirs));
+                                        }
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                         }
 
-//                        try {
-//                            FileUtils.deleteDirectory(new File(temp_dir));
-//
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-
-                        btnSend.setText("上传完成");
                     }
                 }).start();
 
@@ -220,13 +256,13 @@ public class MainActivity extends AppCompatActivity {
                 btnCheck.setText("分析中。。。");
                 String[] func = {"script", "examine"};
                 String fname = "";
-                for (String f:new File(tar_file_tar_dir).list()){
+                for (String f:new File(tar_file_tar_dir_user).list()){
                     if (f.split("_")[1].equals(user_id) && f.split("_")[2].equals(group) && f.split("_")[5].equals("PPG2")){
                         fname = f;
                     }
                 }
                 String[] args = {
-                        tar_file_tar_dir + fname,
+                        tar_file_tar_dir_user + fname,
                         lower_rate,
                         upper_rate
                 };
@@ -244,13 +280,13 @@ public class MainActivity extends AppCompatActivity {
                 btnCheck3.setText("分析中。。。");
                 String[] func = {"script", "examine"};
                 String fname = "";
-                for (String f:new File(tar_file_tar_dir).list()){
+                for (String f:new File(tar_file_tar_dir_user).list()){
                     if (f.split("_")[1].equals(user_id) && f.split("_")[2].equals(group) && f.split("_")[5].equals("PPG3")){
                         fname = f;
                     }
                 }
                 String[] args = {
-                        tar_file_tar_dir + fname,
+                        tar_file_tar_dir_user + fname,
                         lower_rate,
                         upper_rate
                 };
@@ -381,67 +417,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return args;
-    }
-
-
-    public void sendToRemote(String fname, String mode){
-        Socket s = null;
-        DataOutputStream dos = null;
-        FileInputStream fis = null;
-        File f;
-        try{
-            try{
-                if (mode.equals("origin/")){
-                    f = new File(src_file_tar_dir + fname);
-                } else {
-                    f = new File(tar_file_tar_dir + fname);
-                }
-
-                s = new Socket(serverAddr, PORT);
-                dos = new DataOutputStream(s.getOutputStream());
-                fis = new FileInputStream(f);
-                long fl = f.length();
-
-                dos.writeUTF(mode + fname);
-                dos.flush();
-
-                dos.writeLong(fl);
-                dos.flush();
-
-                byte[] bytes = new byte[1024];
-                int length = 0;
-                long progress = 0;
-
-                while ((length = fis.read(bytes, 0, bytes.length))!= -1){
-                    dos.write(bytes, 0, length);
-                    dos.flush();
-                    progress += length;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }finally {
-            if(fis != null) {
-                try {
-                    fis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if(dos != null) {
-                try {
-                    dos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            try {
-                s.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
 
