@@ -9,6 +9,7 @@ import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String serverAddr;
     private int PORT;
+    private final String root_dir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
     private String src_dir;
     private String tar_dir;
     private String src_file_tar_dir;
@@ -62,9 +64,9 @@ public class MainActivity extends AppCompatActivity {
     private Button btnCheck, btnCheck3, btnLogin, btnSend;
     private String device_sc;
     private String lower_rate, upper_rate;
-    private String[] user = new String[6];
+    private String[] user = new String[50];
     private String user_id, group;
-    private String[] fnames = new String[8];
+    private String[] fnames = new String[50];
     private EditText user_input;
     private final String remoteUserName = "ipsc";
     private final String remotePassword = "ipsc";
@@ -79,14 +81,14 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
         }
 
-        String settingFilePath = "/storage/emulated/0/watch_data/settings.txt";
+        String settingFilePath = "watch_data/settings.txt";
         String[] settings = readSettings(settingFilePath);
         serverAddr = settings[0].split(":")[1];
         PORT = Integer.parseInt(settings[1].split(":")[1]);
         device_sc = settings[2].split(":")[1];
         remote_path = settings[3].split(":")[1];
-        src_dir = settings[4].split(":")[1];
-        tar_dir = settings[5].split(":")[1];
+        src_dir = root_dir + settings[4].split(":")[1];
+        tar_dir = root_dir + settings[5].split(":")[1];
         lower_rate = settings[6].split(":")[1];
         upper_rate = settings[7].split(":")[1];
         src_file_tar_dir = tar_dir + "origin/";
