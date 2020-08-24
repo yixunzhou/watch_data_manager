@@ -1,5 +1,12 @@
 使用前，
 需在watch_data_manager/目录下新建settings.txt文件，写入参数。
+每次用完app最好手动清除后台。
+
+
+
+
+
+
 settings.txt示例：
 Server_ip:166.111.134.39
 Server_port:6668
@@ -9,6 +16,7 @@ Src_dir:/storage/emulated/0/btdata2/
 Tar_dir:/storage/emulated/0/watch_data/
 Min_rate:60
 Max_rate:80
+Watch_num:02
 
 
 说明：
@@ -21,3 +29,4 @@ Max_rate:80
 第六行存放本地目标目录
 第七行存放最小心率
 第八行存放最大心率
+第九行存放腕表编号

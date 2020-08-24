@@ -6,35 +6,45 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-
+    <Button
+        android:id="@+id/hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="请在下方输入用户id和组号，用下划线分隔"
+        android:background="#FFFFFF"
+        app:layout_constraintTop_toTopOf="parent" />
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/user"
-        android:text="请输入id和组号，用下划线分开"
-        app:layout_constraintTop_toTopOf="parent"
-        android:gravity="center" />
+        app:layout_constraintTop_toBottomOf="@id/hint"
+        android:gravity="center"
+        />
+    <Spinner
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/watch_sc_spinner"
+        app:layout_constraintTop_toBottomOf="@id/user"
+        android:gravity="center"
+        />
     <Button
         android:id="@+id/login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="登录"
-        app:layout_constraintTop_toBottomOf="@id/user"
-        tools:layout_editor_absoluteX="0dp" />
+        app:layout_constraintTop_toBottomOf="@id/watch_sc_spinner"/>
     <Button
         android:id="@+id/check"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="检查PPG2"
-        app:layout_constraintTop_toBottomOf="@id/decode_save"
-        tools:layout_editor_absoluteX="0dp" />
+        app:layout_constraintTop_toBottomOf="@id/decode_save"/>
     <Button
         android:id="@+id/check3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="检查PPG3"
-        app:layout_constraintTop_toBottomOf="@id/check"
-        tools:layout_editor_absoluteX="0dp" />
+        app:layout_constraintTop_toBottomOf="@id/check"/>
 
     <Button
         android:layout_width="match_parent"
@@ -50,6 +60,12 @@
         android:layout_height="wrap_content"
         android:text="上传文件"
         app:layout_constraintTop_toBottomOf="@id/check3"/>
+    <Button
+        android:id="@+id/exit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="退出程序"
+        app:layout_constraintTop_toBottomOf="@id/upload"/>
 
 
 
