@@ -10,13 +10,13 @@
 settings.txt示例：
 Server_ip:166.111.134.39
 Server_port:6668
-Device_num:02
+Device_num:2
 Remote_dir:/home/ipsc/data_pool_2/yixun/watch_data/
 Src_dir:/storage/emulated/0/btdata2/
 Tar_dir:/storage/emulated/0/watch_data/
 Min_rate:60
 Max_rate:80
-Watch_num:02
+Watch_num:2
 
 
 说明：

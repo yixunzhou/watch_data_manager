@@ -38,7 +38,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.LogRecord;
 
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.SCPClient;
@@ -68,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private Spinner spinner;
     private ArrayAdapter<String> spinnerAdapter;
     private String device_sc;
-    private String watch_sc, watch_sc_temp;
+    private String watch_sc;
     private String lower_rate, upper_rate;
     private String[] user = new String[50];
     private String[] watch_scs = new String[]{"0", "1", "2", "3", "4"};
@@ -78,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
     private final String remoteUserName = "ipsc";
     private final String remotePassword = "ipsc";
     private final String tag = "Debug";
-    public static List<Activity> activityList = new LinkedList();
     private final String underline = "_";
     private final String colon = ":";
 
@@ -103,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
         lower_rate = settings[6].split(colon)[1];
         upper_rate = settings[7].split(colon)[1];
         watch_sc = settings[8].split(colon)[1];
-        watch_sc_temp = settings[8].split(colon)[1];
         src_file_tar_dir = tar_dir + "origin/";
         tar_file_tar_dir = tar_dir + "decoded/";
 
@@ -235,8 +232,14 @@ public class MainActivity extends AppCompatActivity {
                             tar_file_tar_dir_user = tar_file_tar_dir + user[0] + underline+ user[1] + underline + user[2] + underline + user[3] + "/";
                             File f_src_file_tar_dir_user = new File(src_file_tar_dir_user);
                             File f_tar_file_tar_dir_user = new File(tar_file_tar_dir_user);
-                            if (!f_src_file_tar_dir_user.exists()) f_src_file_tar_dir_user.mkdir();
-                            if (!f_tar_file_tar_dir_user.exists()) f_tar_file_tar_dir_user.mkdir();
+                            if (!f_src_file_tar_dir_user.exists()) {
+                                f_src_file_tar_dir_user.mkdir();
+                                Log.d(tag, "dir " + src_file_tar_dir_user + " created.");
+                            }
+                            if (!f_tar_file_tar_dir_user.exists()) {
+                                f_tar_file_tar_dir_user.mkdir();
+                                Log.d(tag, "dir " + tar_file_tar_dir_user + " created.");
+                            }
 
                             try{
                                 PPGParser.decode(src_file_arr, tar_file_tar_dir_user, user, fnames);
@@ -294,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                         if (connectivityManager.getActiveNetwork() == null){
-                            btnSend.setText("无法连接到网络，请检查你的网络连接");
+                            btnSend.setText("无法连接到服务器，请检查你的网络连接");
                             Log.d(tag, "no available network.");
                         } else {
                             File f_src_file_tar_dir = new File(src_file_tar_dir);
