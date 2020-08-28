@@ -6,7 +6,6 @@ import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -20,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.chaquo.python.PyObject;
@@ -36,8 +36,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Objects;
 
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.SCPClient;
@@ -63,7 +62,8 @@ public class MainActivity extends AppCompatActivity {
     private String tar_file_tar_dir_user;
     private String mode;
     private String remote_path;
-    private Button btnCheck, btnCheck3, btnLogin, btnSend, btnDecode, btnHint, btnExit;
+    private Button btnCheck, btnCheck3, btnLogin, btnSend, btnDecode, btnExit;
+    private TextView hint;
     private Spinner spinner;
     private ArrayAdapter<String> spinnerAdapter;
     private String device_sc;
@@ -90,8 +90,8 @@ public class MainActivity extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
         }
-        String settingFilePath = "watch_data/settings.txt";
-        String[] settings = readSettings(root_dir + settingFilePath);
+        String settingFilePath = root_dir + "watch_data/settings.txt";
+        String[] settings = readSettings(settingFilePath);
         serverAddr = settings[0].split(colon)[1];
         PORT = Integer.parseInt(settings[1].split(colon)[1]);
         device_sc = settings[2].split(colon)[1];
@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
         btnCheck = findViewById(R.id.check);
         btnCheck3 = findViewById(R.id.check3);
         btnSend = findViewById(R.id.upload);
-        btnHint = findViewById(R.id.hint);
+        hint = findViewById(R.id.hint);
         btnExit = findViewById(R.id.exit);
 
         btnDecode.setVisibility(View.INVISIBLE);
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if (i != 0){
-                    watch_sc = String.valueOf(i+1);
+                    watch_sc = String.valueOf(i);
                 }
                 Log.d(tag, "watch number is " + watch_sc);
             }
@@ -162,9 +162,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(tag, "user id is " + user_id);
                 Log.d(tag, "group is " + group);
                 btnLogin.setText("用户 " + watch_sc + underline + user_input.getText().toString() + " 已登录");
+                Toast t1 = Toast.makeText(MainActivity.this, "user " + watch_sc + underline + user_input.getText().toString() + " login successfully.", Toast.LENGTH_SHORT);
+                t1.show();
                 Log.d(tag, "user " + watch_sc + underline + user_input.getText().toString() + " login successfully.");
 
-                btnHint.setVisibility(View.INVISIBLE);
+                hint.setVisibility(View.INVISIBLE);
                 user_input.setVisibility(View.INVISIBLE);
                 spinner.setVisibility(View.INVISIBLE);
                 btnDecode.setVisibility(View.VISIBLE);
@@ -186,10 +188,12 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     dir = new File(src_dir).list()[0];
                     for (String dirs:new File(src_dir).list()){
-                        long t = Long.parseLong(dirs.split(underline)[2]);
-                        if (t > temp){
-                            temp = t;
-                            dir = dirs;
+                        if (!dirs.equals("upload")){
+                            long t = Long.parseLong(dirs.split(underline)[2]);
+                            if (t > temp){
+                                temp = t;
+                                dir = dirs;
+                            }
                         }
                     }
                     Log.d(tag, "valid source dir is " + src_dir + dir + "/");
@@ -243,18 +247,27 @@ public class MainActivity extends AppCompatActivity {
 
                             try{
                                 PPGParser.decode(src_file_arr, tar_file_tar_dir_user, user, fnames);
+                                Toast t2 = Toast.makeText(MainActivity.this, "file " + files + " has been decoded and saved to " + tar_file_tar_dir_user, Toast.LENGTH_SHORT);
+                                t2.show();
                                 Log.d(tag, "file " + files + " has been decoded and saved to " + tar_file_tar_dir_user);
                                 try {
                                     copyFile(new File(src_file), new File(src_file_tar_dir_user + fnames[7]));
+                                    Toast t3 = Toast.makeText(MainActivity.this, "source file " + files + " has been copied to " + src_file_tar_dir_user + fnames[7], Toast.LENGTH_SHORT);
+                                    t3.show();
                                     Log.d(tag, "source file " + files + " has been copied to " + src_file_tar_dir_user + fnames[7]);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
                                 btnDecode.setText("文件已保存");
+                                Toast t4 = Toast.makeText(MainActivity.this, "All files processed on localhost.", Toast.LENGTH_SHORT);
+                                t4.show();
                                 Log.d(tag, "All files processed on localhost.");
                             } catch (Exception e){
                                 e.printStackTrace();
+                                btnDecode.setText("无有效数据文件，请重新采集");
                                 flag = false;
+                                Toast t5 = Toast.makeText(MainActivity.this, "data is invalid.", Toast.LENGTH_SHORT);
+                                t5.show();
                                 Log.d(tag, "data is invalid.");
                             }
 
@@ -268,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
                     if (!flag || flag2){
                         btnDecode.setText("无有效数据文件，请关闭应用程序重新采集");
                         Log.d(tag, "no valid data file.");
-                        btnHint.setVisibility(View.INVISIBLE);
+                        hint.setVisibility(View.INVISIBLE);
                         user_input.setVisibility(View.INVISIBLE);
                         spinner.setVisibility(View.INVISIBLE);
                         btnCheck.setVisibility(View.INVISIBLE);
@@ -279,6 +292,7 @@ public class MainActivity extends AppCompatActivity {
                 }catch (Exception e){
                     e.printStackTrace();
                     btnDecode.setText("文件夹为空，请检查。");
+
                     Log.d(tag, "dir is empty.");
                 }
 
@@ -492,15 +506,9 @@ public class MainActivity extends AppCompatActivity {
             if (a == 0){
                 btnCheck.setText("数据无效，请重新采集");
                 Log.d(tag, "no valid signal.");
-//                Toast toast = Toast.makeText(MainActivity.this, "数据无效，请重新采集", Toast.LENGTH_SHORT);
-//                toast.setGravity(Gravity.BOTTOM, 0, 0);
-//                toast.show();
             } else{
                 btnCheck.setText("本次采集到了" + a  + "个波形");
                 Log.d(tag, a + " valid signals are collected.");
-//                Toast toast = Toast.makeText(MainActivity.this, "本次采集到了 \" + a  + \"个波形", Toast.LENGTH_SHORT);
-//                toast.setGravity(Gravity.BOTTOM, 0, 0);
-//                toast.show();
             }
 
         }
@@ -538,15 +546,9 @@ public class MainActivity extends AppCompatActivity {
             if (a == 0){
                 btnCheck3.setText("数据无效，请重新采集");
                 Log.d(tag, "no valid signal.");
-//                Toast toast = Toast.makeText(MainActivity.this, "数据无效，请重新采集", Toast.LENGTH_SHORT);
-//                toast.setGravity(Gravity.BOTTOM, 0, 0);
-//                toast.show();
             } else{
                 btnCheck3.setText("本次采集到了 " + a  + "个波形");
                 Log.d(tag, a + " valid signals are collected.");
-//                Toast toast = Toast.makeText(MainActivity.this, "本次采集到了 \" + a  + \"个波形", Toast.LENGTH_SHORT);
-//                toast.setGravity(Gravity.BOTTOM, 0, 0);
-//                toast.show();
             }
 
         }
