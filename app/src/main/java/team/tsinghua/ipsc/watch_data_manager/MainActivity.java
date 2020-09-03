@@ -1,5 +1,6 @@
 package team.tsinghua.ipsc.watch_data_manager;
 
+import androidx.annotation.LongDef;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -8,6 +9,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,6 +31,7 @@ import com.chaquo.python.android.AndroidPlatform;
 import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -36,6 +39,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import ch.ethz.ssh2.Connection;
@@ -70,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
     private String watch_sc;
     private String lower_rate, upper_rate;
     private String[] user = new String[50];
-    private String[] watch_scs = new String[]{"0", "1", "2", "3", "4"};
+    private String[] watch_scs  = new String[]{"-------------------请选择腕表编号-------------------", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"};;
     private String user_id, group;
     private String[] fnames = new String[50];
     private EditText user_input;
@@ -81,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
     private final String colon = ":";
 
 
-
     @SuppressLint(value = "ClickableViewAccessibility")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,8 +95,8 @@ public class MainActivity extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
         }
-        String settingFilePath = root_dir + "watch_data/settings.txt";
-        String[] settings = readSettings(settingFilePath);
+        final String settingFilePath = root_dir + "watch_data/settings.txt";
+        final String[] settings = readSettings(settingFilePath);
         serverAddr = settings[0].split(colon)[1];
         PORT = Integer.parseInt(settings[1].split(colon)[1]);
         device_sc = settings[2].split(colon)[1];
@@ -104,6 +109,49 @@ public class MainActivity extends AppCompatActivity {
         src_file_tar_dir = tar_dir + "origin/";
         tar_file_tar_dir = tar_dir + "decoded/";
 
+//        if (watch_sc.equals("1")){
+//            watch_scs = new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"};
+//        } else if (watch_sc.equals("2")){
+//            watch_scs = new String[]{"2", "1", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"};
+//        } else if (watch_sc.equals("3")){
+//            watch_scs = new String[]{"3", "1", "2", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"};
+//        } else if (watch_sc.equals("4")){
+//            watch_scs = new String[]{"4", "1", "2", "3", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"};
+//        } else if (watch_sc.equals("5")){
+//            watch_scs = new String[]{"5", "1", "2", "3", "4", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"};
+//        } else if (watch_sc.equals("6")){
+//            watch_scs = new String[]{"6", "1", "2", "3", "4", "5", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"};
+//        } else if (watch_sc.equals("7")){
+//            watch_scs = new String[]{"7", "1", "2", "3", "4", "5", "6", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"};
+//        } else if (watch_sc.equals("8")){
+//            watch_scs = new String[]{"8", "1", "2", "3", "4", "5", "6", "7", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"};
+//        } else if (watch_sc.equals("9")){
+//            watch_scs = new String[]{"9", "1", "2", "3", "4", "5", "6", "7", "8", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"};
+//        } else if (watch_sc.equals("10")){
+//            watch_scs = new String[]{"10", "1", "2", "3", "4", "5", "6", "7", "8", "9", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"};
+//        } else if (watch_sc.equals("11")){
+//            watch_scs = new String[]{"11", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "12", "13", "14", "15", "16", "17", "18", "19", "20"};
+//        } else if (watch_sc.equals("12")){
+//            watch_scs = new String[]{"12", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "13", "14", "15", "16", "17", "18", "19", "20"};
+//        } else if (watch_sc.equals("13")){
+//            watch_scs = new String[]{"13", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "14", "15", "16", "17", "18", "19", "20"};
+//        } else if (watch_sc.equals("14")){
+//            watch_scs = new String[]{"14", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "15", "16", "17", "18", "19", "20"};
+//        } else if (watch_sc.equals("15")){
+//            watch_scs = new String[]{"15", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "16", "17", "18", "19", "20"};
+//        } else if (watch_sc.equals("16")){
+//            watch_scs = new String[]{"16", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "17", "18", "19", "20"};
+//        } else if (watch_sc.equals("17")){
+//            watch_scs = new String[]{"17", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "18", "19", "20"};
+//        } else if (watch_scs.equals("18")){
+//            watch_scs = new String[]{"18", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "19", "20"};
+//        } else if (watch_sc.equals("19")){
+//            watch_scs = new String[]{"19", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "20"};
+//        } else if (watch_sc.equals("20")){
+//            watch_scs = new String[]{"20", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"};
+//        }
+
+
         Log.d(tag, "server addr is " + serverAddr);
         Log.d(tag, "server port is " + PORT);
         Log.d(tag, "device number is " + device_sc);
@@ -114,6 +162,8 @@ public class MainActivity extends AppCompatActivity {
         Log.d(tag, "upper heart rate is " + upper_rate);
         Log.d(tag, "target dir of source files is " + src_file_tar_dir);
         Log.d(tag, "target dir of decoded files is " + tar_file_tar_dir);
+        Log.d(tag, "watch number is " + watch_sc);
+
 
         if (!Python.isStarted()) {
             Python.start(new AndroidPlatform(this));
@@ -126,6 +176,9 @@ public class MainActivity extends AppCompatActivity {
         btnSend = findViewById(R.id.upload);
         hint = findViewById(R.id.hint);
         btnExit = findViewById(R.id.exit);
+
+        hint.setText("请在下方输入用户id和组号，用下划线分隔(你的默认腕表编号为 " + watch_sc + " ）");
+        hint.setTextColor(Color.BLACK);
 
         btnDecode.setVisibility(View.INVISIBLE);
         btnCheck.setVisibility(View.INVISIBLE);
@@ -142,17 +195,21 @@ public class MainActivity extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
                 if (i != 0){
                     watch_sc = String.valueOf(i);
                 }
-                Log.d(tag, "watch number is " + watch_sc);
+
+                Log.d(tag, "new watch number is " + watch_sc);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                Log.d(tag, "watch number is " + watch_sc);
+                Log.d(tag, "new watch number is still " + watch_sc);
             }
         });
+
+
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,7 +222,10 @@ public class MainActivity extends AppCompatActivity {
                 Toast t1 = Toast.makeText(MainActivity.this, "user " + watch_sc + underline + user_input.getText().toString() + " login successfully.", Toast.LENGTH_SHORT);
                 t1.show();
                 Log.d(tag, "user " + watch_sc + underline + user_input.getText().toString() + " login successfully.");
+                String[] settingsTemp = new String[]{settings[0], settings[1], settings[2], settings[3], settings[4], settings[5], settings[6], settings[7], settings[8].split(colon)[0] + colon + watch_sc};
 
+
+                writeToSettings(settingFilePath, settingsTemp);
                 hint.setVisibility(View.INVISIBLE);
                 user_input.setVisibility(View.INVISIBLE);
                 spinner.setVisibility(View.INVISIBLE);
@@ -569,9 +629,10 @@ public class MainActivity extends AppCompatActivity {
     public static String[] readSettings(String settingFileName){
         String line;
         String[] args = new String[20];
+        BufferedReader in = null;
         int i;
         try{
-            BufferedReader in=new BufferedReader(new FileReader(settingFileName));
+            in=new BufferedReader(new FileReader(settingFileName));
             line=in.readLine();
             for (i=0;i<args.length;i++){
                 if (line != null){
@@ -579,9 +640,18 @@ public class MainActivity extends AppCompatActivity {
                     line = in.readLine();
                 }
             }
-            in.close();
+
         }catch (Exception e){
             e.printStackTrace();
+        }finally {
+            if (in!=null){
+                try{
+                    in.close();
+                }catch (IOException e){
+                    e.printStackTrace();
+
+                }
+            }
         }
 
         return args;
@@ -598,6 +668,30 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+
+    public static void writeToSettings(String filePath, String[] settings){
+        BufferedWriter bufferedWriter = null;
+        try{
+            bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(filePath), false), StandardCharsets.UTF_8));
+            for (int i=0;i<settings.length;i++){
+                bufferedWriter.write(settings[i] + "\n");
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }finally {
+            try{
+                if (bufferedWriter != null){
+                    bufferedWriter.close();
+                }
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
+
+
     }
 
 
