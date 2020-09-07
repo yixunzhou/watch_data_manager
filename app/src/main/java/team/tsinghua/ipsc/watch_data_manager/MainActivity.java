@@ -400,6 +400,19 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             File f_src_file_tar_dir = new File(src_file_tar_dir);
                             File f_tar_file_tar_dir = new File(tar_file_tar_dir);
+
+                            for(String folder:new File(src_file_tar_dir).list()){
+                                if (folder.split(underline)[2].equals(user_id)&&folder.split(underline)[3].equals(group)){
+                                    src_file_tar_dir_user=src_file_tar_dir+folder+"/";
+                                    break;
+                                }
+                            }
+                            for(String folder:new File(tar_file_tar_dir).list()) {
+                                if (folder.split(underline)[2].equals(user_id) && folder.split(underline)[3].equals(group)) {
+                                    tar_file_tar_dir_user = tar_file_tar_dir + folder + "/";
+                                    break;
+                                }
+                            }
                             File f_src_file_tar_dir_user = new File(src_file_tar_dir_user);
                             File f_tar_file_tar_dir_user = new File(tar_file_tar_dir_user);
                             if (!f_src_file_tar_dir.exists()) {
@@ -429,6 +442,7 @@ public class MainActivity extends AppCompatActivity {
                                     btnSend.setText("远程服务器已连接");
                                 }
                                 SCPClient scpClient = connection.createSCPClient();
+
                                 if (new File(src_file_tar_dir_user).list() != null){
                                     btnSend.setText("文件上传中");
                                     for (String fname:new File(src_file_tar_dir_user).list()){
@@ -449,6 +463,10 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     }
                                 }
+
+
+
+
                                 if (new File(tar_file_tar_dir_user).list() != null){
                                     for (String fname:new File(tar_file_tar_dir_user).list()){
                                         if (fname.split(underline)[2].equals(user_id) && fname.split(underline)[3].equals(group)){
@@ -468,6 +486,8 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     }
                                 }
+
+
                                 Log.d(tag, "All files uploaded.");
                                 btnSend.setText("文件已上传");
                             }catch (IOException e){
