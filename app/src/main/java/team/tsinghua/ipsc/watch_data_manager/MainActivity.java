@@ -40,9 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.SCPClient;
@@ -70,13 +68,14 @@ public class MainActivity extends AppCompatActivity {
     private String remote_path;
     private Button btnCheck, btnCheck3, btnLogin, btnSend, btnDecode, btnExit;
     private TextView hint;
-    private Spinner spinner;
-    private ArrayAdapter<String> spinnerAdapter;
+    private Spinner spinner, spinner2;
+    private ArrayAdapter<String> spinnerAdapter, spinnerAdapter2;
     private String device_sc;
     private String watch_sc;
     private String lower_rate, upper_rate;
     private String[] user = new String[50];
-    private String[] watch_scs  = new String[]{"-------------------请选择腕表编号-------------------", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"};;
+    private String[] watch_scs  = new String[]{"-------------------请选择腕表编号-------------------", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"};
+    private String[] device_scs = new String[]{"-------------------请选择手机编号-------------------", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
     private String user_id, group;
     private String[] fnames = new String[50];
     private EditText user_input;
@@ -177,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
         hint = findViewById(R.id.hint);
         btnExit = findViewById(R.id.exit);
 
-        hint.setText("请在下方输入用户id和组号，用下划线分隔(你的默认腕表编号为 " + watch_sc + " ）");
+        hint.setText("请在下方输入用户id和组号，用下划线分隔(你当前的腕表编号为 " + watch_sc + "， 你当前的手机编号为 " + device_sc +"  ）");
         hint.setTextColor(Color.BLACK);
 
         btnDecode.setVisibility(View.INVISIBLE);
@@ -209,6 +208,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        spinner2 = findViewById(R.id.device_sc_spinner);
+        spinnerAdapter2 = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, device_scs);
+        spinnerAdapter2.setDropDownViewResource(R.layout.list_item);
+        spinner2.setAdapter(spinnerAdapter2);
+        spinner2.setPopupBackgroundResource(R.drawable.view_radius);
+        spinner2.setLayoutMode(Spinner.MODE_DROPDOWN);
+        spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                if (i != 0){
+                    device_sc = String.valueOf(i);
+                }
+
+                Log.d(tag, "new device number is " + device_sc);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                Log.d(tag, "new device number is still " + device_sc);
+            }
+        });
+
 
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -222,13 +244,15 @@ public class MainActivity extends AppCompatActivity {
                 Toast t1 = Toast.makeText(MainActivity.this, "user " + watch_sc + underline + user_input.getText().toString() + " login successfully.", Toast.LENGTH_SHORT);
                 t1.show();
                 Log.d(tag, "user " + watch_sc + underline + user_input.getText().toString() + " login successfully.");
-                String[] settingsTemp = new String[]{settings[0], settings[1], settings[2], settings[3], settings[4], settings[5], settings[6], settings[7], settings[8].split(colon)[0] + colon + watch_sc};
+                String[] settingsTemp = new String[]{settings[0], settings[1], settings[2].split(colon)[0] + colon + device_sc, settings[3], settings[4], settings[5], settings[6], settings[7], settings[8].split(colon)[0] + colon + watch_sc};
 
 
                 writeToSettings(settingFilePath, settingsTemp);
-                hint.setVisibility(View.INVISIBLE);
+                hint.setText("你当前的腕表编号为 " + watch_sc + "， 你当前的手机编号为 " + device_sc +"  ");
+//                hint.setVisibility(View.INVISIBLE);
                 user_input.setVisibility(View.INVISIBLE);
                 spinner.setVisibility(View.INVISIBLE);
+                spinner2.setVisibility(View.INVISIBLE);
                 btnDecode.setVisibility(View.VISIBLE);
                 btnCheck.setVisibility(View.VISIBLE);
                 btnCheck3.setVisibility(View.VISIBLE);
@@ -408,7 +432,7 @@ public class MainActivity extends AppCompatActivity {
                                 if (new File(src_file_tar_dir_user).list() != null){
                                     btnSend.setText("文件上传中");
                                     for (String fname:new File(src_file_tar_dir_user).list()){
-                                        if (fname.split(underline)[1].equals(user_id) && fname.split(underline)[2].equals(group)){
+                                        if (fname.split(underline)[2].equals(user_id) && fname.split(underline)[3].equals(group)){
                                             try {
                                                 scpClient.put(src_file_tar_dir_user + fname, remote_path + "origin/" + fname.split(underline)[0] + underline +  watch_sc + underline + user_id + underline + group + "/");
                                             }catch (IOException e){
@@ -427,7 +451,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 if (new File(tar_file_tar_dir_user).list() != null){
                                     for (String fname:new File(tar_file_tar_dir_user).list()){
-                                        if (fname.split(underline)[1].equals(watch_sc) && fname.split(underline)[2].equals(user_id) && fname.split(underline)[3].equals(group)){
+                                        if (fname.split(underline)[2].equals(user_id) && fname.split(underline)[3].equals(group)){
                                             try {
                                                 scpClient.put(tar_file_tar_dir_user + fname, remote_path + "decoded/" + fname.split(underline)[0] + underline + watch_sc + underline + user_id + underline + group + "/");
                                             }catch (IOException e){
@@ -451,16 +475,6 @@ public class MainActivity extends AppCompatActivity {
                             }finally {
                                 if (connection!=null){
                                     connection.close();
-                                    try {
-                                        if (new File(src_dir).list() != null){
-                                            for (String dirs: new File(src_dir).list()){
-                                                FileUtils.deleteDirectory(new File(src_dir + dirs));
-                                                Log.d(tag, "dir " + src_dir + " is clear. All source files and directories are removed.");
-                                            }
-                                        }
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
                                 }
                             }
                         }
@@ -479,14 +493,19 @@ public class MainActivity extends AppCompatActivity {
                 btnCheck.setText("分析中。。。");
                 String[] func = {"script", "examine"};
                 String fname = "";
-                for (String f:new File(tar_file_tar_dir_user).list()){
-                    if (f.split(underline)[1].equals(watch_sc) && f.split(underline)[2].equals(user_id) && f.split(underline)[3].equals(group) && f.split(underline)[6].equals("PPG2")){
-                        fname = f;
+                for(String f1:new File(tar_file_tar_dir).list()){
+                    if(f1.split(underline)[2].equals(user_id)&&f1.split(underline)[3].equals(group)){
+                        for (String f:new File(tar_file_tar_dir+f1).list()){
+                            if (f.split(underline)[6].equals("PPG2")){
+                                fname = f1+"/"+f;
 
+                            }
+                        }
                     }
                 }
+
                 String[] args = {
-                        tar_file_tar_dir_user + fname,
+                        tar_file_tar_dir + fname,
                         lower_rate,
                         upper_rate
                 };
@@ -505,14 +524,18 @@ public class MainActivity extends AppCompatActivity {
                 btnCheck3.setText("分析中。。。");
                 String[] func = {"script", "examine"};
                 String fname = "";
-                for (String f:new File(tar_file_tar_dir_user).list()){
-                    if (f.split(underline)[1].equals(watch_sc) &&f.split(underline)[2].equals(user_id) && f.split(underline)[3].equals(group) && f.split(underline)[6].equals("PPG3")){
-                        fname = f;
+                for(String f1:new File(tar_file_tar_dir).list()){
+                    if(f1.split(underline)[2].equals(user_id)&&f1.split(underline)[3].equals(group)){
+                        for (String f:new File(tar_file_tar_dir+f1).list()){
+                            if (f.split(underline)[6].equals("PPG3")){
+                                fname = f1+"/"+f;
 
+                            }
+                        }
                     }
                 }
                 String[] args = {
-                        tar_file_tar_dir_user + fname,
+                        tar_file_tar_dir + fname,
                         lower_rate,
                         upper_rate
                 };
@@ -527,6 +550,16 @@ public class MainActivity extends AppCompatActivity {
         btnExit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                try {
+                    if (new File(src_dir).list() != null){
+                        for (String dirs: new File(src_dir).list()){
+                            FileUtils.deleteDirectory(new File(src_dir + dirs));
+                            Log.d(tag, "dir " + src_dir + " is clear. All source files and directories are removed.");
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 android.os.Process.killProcess(android.os.Process.myPid());
                 Log.d(tag, "Application exits.");
                 System.exit(0);

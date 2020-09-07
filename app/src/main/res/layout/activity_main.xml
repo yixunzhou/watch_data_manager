@@ -29,12 +29,19 @@
         app:layout_constraintTop_toBottomOf="@id/user"
         android:gravity="center"
         />
+    <Spinner
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/device_sc_spinner"
+        app:layout_constraintTop_toBottomOf="@id/watch_sc_spinner"
+        android:gravity="center"
+        />
     <Button
         android:id="@+id/login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="登录"
-        app:layout_constraintTop_toBottomOf="@id/watch_sc_spinner"/>
+        app:layout_constraintTop_toBottomOf="@id/device_sc_spinner"/>
     <Button
         android:id="@+id/check"
         android:layout_width="match_parent"
@@ -66,7 +73,7 @@
         android:id="@+id/exit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="退出程序"
+        android:text="清空目录并退出程序"
         app:layout_constraintTop_toBottomOf="@id/upload"/>
 
 
