@@ -9,6 +9,7 @@ from numpy import unique
 from numpy import greater
 from scipy.signal import argrelextrema
 
+
 LOWER_CUTOFF = 0.5
 UPPER_CUTOFF = 5.0
 SAMPLE_RATE = 100
@@ -89,5 +90,31 @@ def examine(ppg_path, lower_rate, upper_rate):
     except Exception:
         # print(Exception.args)
         return 0
-l = examine('/Users/yixun/Tsinghua-IPSC/ppg.txt', 60, 80)
-print(l)
+
+
+def examine_acc(acc_path, lower_band, upper_band):
+    try:
+        # lower_band = (int)lower_band
+        # upper_band = (int)upper_band
+        _, waveform = load_data_from_txt(acc_path)
+        waveform = waveform[5*SAMPLE_RATE:-5*SAMPLE_RATE]
+        filt_wave = butterworth_bandpass_filtrate(4, waveform, SAMPLE_RATE, LOWER_CUTOFF, UPPER_CUTOFF)
+        # cut_points = get_cut_loc(filt_wave, SAMPLE_RATE)
+        # filt_waves = cut_waveform(filt_wave, cut_points, start_index=5, n_waves=1)
+        # plt.plot(filt_wave)
+        # plt.show()
+        valid_points = 0
+        for point in filt_wave:
+            if int(lower_band) <= point <= int(upper_band):
+                valid_points += 1
+        percent=(1-valid_points/float(len(filt_wave)))*100*1000
+        return int(percent)
+    except Exception:
+        #print(Exception.with_traceback())
+        return 100
+
+# l = examine('/Users/yixun/Tsinghua-IPSC/ppg.txt', 60, 80)
+# print(l)
+path="/Users/yixun/decoded/20200916173748_20_213_369/20200916173748_20_213_369_2_60-80_accy_00.txt"
+p=examine_acc(path, -10, 10)
+print(str(p/1000)+"%")

@@ -10,14 +10,14 @@
         android:id="@+id/hint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="20dp"
+        android:textSize="15sp"
         android:gravity="center"
         android:background="#FFFFFF"
         app:layout_constraintTop_toTopOf="parent"
         />
     <EditText
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40sp"
         android:id="@+id/user"
         app:layout_constraintTop_toBottomOf="@id/hint"
         android:gravity="center"
@@ -29,6 +29,7 @@
         app:layout_constraintTop_toBottomOf="@id/user"
         android:gravity="center"
         />
+
     <Spinner
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -39,7 +40,7 @@
     <Button
         android:id="@+id/login"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40sp"
         android:text="登录"
         app:layout_constraintTop_toBottomOf="@id/device_sc_spinner"/>
     <Button
@@ -54,25 +55,51 @@
         android:layout_height="wrap_content"
         android:text="检查PPG3"
         app:layout_constraintTop_toBottomOf="@id/check"/>
+    <Button
+        android:id="@+id/checkAccx"
+        android:layout_width="match_parent"
+        android:layout_height="40sp"
+        android:text="检查Accx"
+        app:layout_constraintTop_toBottomOf="@id/check3"/>
+    <Button
+        android:id="@+id/checkAccy"
+        android:layout_width="match_parent"
+        android:layout_height="40sp"
+        android:text="检查Accy"
+        app:layout_constraintTop_toBottomOf="@id/checkAccx"/>
+    <Button
+        android:id="@+id/checkAccz"
+        android:layout_width="match_parent"
+        android:layout_height="40sp"
+        android:text="检查Accz"
+        app:layout_constraintTop_toBottomOf="@id/checkAccy"/>
 
     <Button
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40sp"
         android:id="@+id/decode_save"
-        android:text="保存文件"
+        android:text="解码"
         app:layout_constraintTop_toBottomOf="@id/login"/>
 
 
     <Button
         android:id="@+id/upload"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="上传文件"
-        app:layout_constraintTop_toBottomOf="@id/check3"/>
+        android:layout_height="40sp"
+        android:text="上传"
+        app:layout_constraintTop_toBottomOf="@id/save"/>
+
+    <Button
+        android:id="@+id/save"
+        android:layout_width="match_parent"
+        android:layout_height="40sp"
+        android:text="保存"
+        app:layout_constraintTop_toBottomOf="@id/checkAccz"/>
+
     <Button
         android:id="@+id/exit"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40sp"
         android:text="清空目录并退出程序"
         app:layout_constraintTop_toBottomOf="@id/upload"/>
 

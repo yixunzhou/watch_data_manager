@@ -14,9 +14,11 @@ Device_num:2
 Remote_dir:/home/ipsc/data_pool_2/yixun/watch_data/
 Src_dir:btdata2/
 Tar_dir:watch_data/
-Min_rate:60
-Max_rate:80
+Min_rate:40
+Max_rate:120
 Watch_num:2
+Min_band:-10
+Max_band:10
 
 
 说明：
@@ -30,3 +32,5 @@ Watch_num:2
 第七行存放最小心率
 第八行存放最大心率
 第九行存放腕表编号
+第十行存放加速度计移动幅值下限
+第十一行存放加速度计移动幅值上限
