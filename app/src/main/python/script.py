@@ -18,7 +18,8 @@ SAMPLE_RATE = 100
 def load_data_from_txt(file_dir):
     txt_file = open(file_dir)
     data = txt_file.readline()
-    data = data[1:-2]
+    data = data.split('[')[1]
+    data = data.split(']')[0]
     li = data.split(', ')
     waveform = numpy.array(li, dtype=float)
     l = len(waveform)
@@ -116,5 +117,7 @@ def examine_acc(acc_path, lower_band, upper_band):
 # l = examine('/Users/yixun/Tsinghua-IPSC/ppg.txt', 60, 80)
 # print(l)
 path="/Users/yixun/decoded/20200916173748_20_213_369/20200916173748_20_213_369_2_60-80_accy_00.txt"
+dir = "/Users/yixun/decoded/"
+
 p=examine_acc(path, -10, 10)
 print(str(p/1000)+"%")
