@@ -17,7 +17,7 @@
         />
     <EditText
         android:layout_width="match_parent"
-        android:layout_height="40sp"
+        android:layout_height="30sp"
         android:id="@+id/user"
         app:layout_constraintTop_toBottomOf="@id/hint"
         android:gravity="center"
@@ -40,14 +40,17 @@
     <Button
         android:id="@+id/login"
         android:layout_width="match_parent"
-        android:layout_height="40sp"
+        android:layout_height="35sp"
+        android:textSize="15sp"
         android:text="登录"
+
         app:layout_constraintTop_toBottomOf="@id/device_sc_spinner"/>
     <Button
         android:id="@+id/check"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="检查PPG2"
+        android:textSize="15sp"
         app:layout_constraintTop_toBottomOf="@id/decode_save"/>
     <Button
         android:id="@+id/check3"
